@@ -1,0 +1,14 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# DB연결
+/cors.php
+/dbconn.php
+
+# JWT키 설정
+/JWT_key.env
+
+
+# 이미지 폴더
+/Board/Upload
+/img
+/files
