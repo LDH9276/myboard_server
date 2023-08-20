@@ -29,8 +29,9 @@ if (is_array($accessResult)) {
   echo json_encode([
     'message'       => '토큰이 유효합니다.',
     'success'       => true,
-    'user_id'       => $result['id'],
-    'user_name'     => $result['name'],
+    'user_id'       => $accessResult['id'],
+    'user_name'     => $accessResult['name'],
+    'user_info'     => $accessResult['user_info'],
     'access_token'  => $token,
     'refresh_token' => $refreshHeader
   ]);
