@@ -7,6 +7,8 @@
 # JWT키 설정
 /JWT_key.env
 
+/.htaccess
+/Board/.htaccess
 
 # 이미지 폴더
 /Board/Upload
