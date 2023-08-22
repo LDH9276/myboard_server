@@ -49,22 +49,26 @@ class JWT {
     // 토큰 해석하기
     function decodeToken($token, $secret_key) {
 
-      // 구분자 . 로 토큰 나누기
-      $parted = explode('.', base64_decode($token));
-      $signature = $parted[2] ?? null;
-  
-      // 토큰 만들 때처럼 시그니처 생성 후 비교
-      if (hash($this->alg, $parted[0] . $parted[1] . $secret_key) != $signature) {
-          return "signiture error.";
-      }
+        // 구분자 . 로 토큰 나누기
+        $parted = explode('.', base64_decode($token));
+        $signature = $parted[2] ?? null;
+
+        // $parted 배열의 크기 확인
+        if (count($parted) < 3) {
+            return "invalid token.";
+        }
+
+        // 토큰 만들 때처럼 시그니처 생성 후 비교
+        if (hash($this->alg, $parted[0] . $parted[1] . $secret_key) != $signature) {
+            return "signature error.";
+        }
       // 만료 검사
-      $payload = json_decode($parted[1], true);
-      if ($payload['exp'] < time()) {
-          return "토큰이 만료되었습니다.";
-      }
-  
-      return $payload;
-  }
+        $payload = json_decode($parted[1], true);
+            if ($payload['exp'] < time()) {
+            return "토큰이 만료되었습니다.";
+        }
+        return $payload;
+    }
 
     // 액세스 토큰 해석하기
     function decodeAccessToken($token) {

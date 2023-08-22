@@ -38,12 +38,12 @@ if(password_verify($password, $dbPass)) {
     'id'        => $row['id'],
     'name'      => $row['name'],
     'user_info' => $row['user_info'],
-    'exp'       => time() + (60 * 1) // 테스트, 1분
+    'exp'       => time() + (60 * 60) // 1시간 유지시간
   ];
 
   $newRefreshToken = [
     'id'        => $row['id'],
-    'exp'       => time() + (60 * 10) // 테스트, 10분
+    'exp'       => time() + (60 * 60 * 24) // 1일 유지시간
   ];
 
 
