@@ -1,8 +1,7 @@
 <?php
 
 // CORS 허용
-include 'cors.php';
-header("Content-Security-Policy: default-src 'self'; script-src 'self'");
+include_once 'cors.php';
 $header = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
 
 //JWT 토큰 불러오기
