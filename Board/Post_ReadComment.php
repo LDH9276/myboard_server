@@ -22,12 +22,16 @@ while($row = mysqli_fetch_array($result)) {
   $content = $row['content'] ?? '';
   $writer = $row['writer'] ?? '';
   $reg_date = $row['reg_date'] ?? '';
+  $commnet_parent = $row['comment_parent'] ?? null;
+  $comment_depth = $row['comment_depth'] ?? '';
 
   $list[] = array(
     'id' => $id,
     'content' => $content,
     'writer' => $writer,
-    'reg_date' => $reg_date
+    'reg_date' => $reg_date,
+    'comment_parent' => $commnet_parent,
+    'comment_depth' => $comment_depth
   );
 }
 
