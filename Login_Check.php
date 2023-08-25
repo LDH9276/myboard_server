@@ -2,7 +2,7 @@
 
 include_once 'cors.php';
 include_once 'dbconn.php';
-include_once 'jwt.php';
+include_once 'JWT.php';
 
 // JWT 객체 생성
 $jwt = new JWT();

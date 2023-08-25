@@ -38,9 +38,11 @@ while($row = mysqli_fetch_array($result)) {
   $writer = $row['writer'] ?? '';
   $reg_date = $row['reg_date'] ?? '';
   $comment_count = $row['comment_count'] ?? '';
+  $nickname = $row['nickname'] ?? '';
 
   $list[] = array(
     'id' => $id,
+    'nickname' => $nickname,
     'title' => $title,
     'writer' => $writer,
     'reg_date' => $reg_date,

@@ -11,7 +11,7 @@ include_once '../dbconn.php';
 $writer = $_POST['writer'] ?? '';
 $title = $_POST['title'] ?? '';
 $content = $_POST['content'] ?? '';
-$reg_date = date("Y-m-d H:i:s");
+$nickname = $_POST['nickname'] ?? '';
 
 // 수정모드시 받아올 것들
 $id = $_POST['id'] ?? '';
@@ -51,8 +51,8 @@ if ($modify) {
 else {
 
 // DB에 글 저장
-$stmt = $conn->prepare("INSERT INTO app_board (writer, title, content, reg_date) VALUES (?, ?, ?, ?)");
-$stmt->bind_param("ssss", $writer, $title, $content, $reg_date);
+$stmt = $conn->prepare("INSERT INTO app_board (writer, title, content, nickname) VALUES (?, ?, ?, ?)");
+$stmt->bind_param("ssss", $writer, $title, $content, $nickname);
 $stmt->execute();
 
 // DB 처리 종료

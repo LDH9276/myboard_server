@@ -33,12 +33,12 @@
 
   // 비밀번호 암호화
   $password = password_hash($password, PASSWORD_DEFAULT);
-  
+
   // 회원가입 절차 실행
   $stmt = $conn->prepare("INSERT INTO app_users (id, password, name, email) VALUES (?, ?, ?, ?)");
   $stmt->bind_param("ssss", $id, $password, $name, $email);
   $result = $stmt->execute();
-  
+
   if($result) {
     // 회원가입 이후 JSON으로 성공 메시지를 보냄
     echo json_encode([
@@ -48,7 +48,7 @@
     // 실패하면 JSON으로 실패 메시지를 보냄
     echo json_encode([
       'success' => false,
-      'error' => 'Invalid username or password'
+      'error' => $conn->error
     ]);
   }
 ?>

@@ -5,7 +5,7 @@ include_once 'cors.php';
 $header = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
 
 //JWT 토큰 불러오기
-include_once 'jwt.php';
+include_once 'JWT.php';
 
 //DB 연결
 include_once 'dbconn.php';
