@@ -2,7 +2,7 @@
 
 include_once 'cors.php';
 include_once 'dbconn.php';
-include_once 'jwt.php';
+include_once 'JWT.php';
 
 // JWT 객체 생성
 $jwt = new JWT();
@@ -29,16 +29,19 @@ $stmt->bind_param("s", $id);
 $stmt->execute();
 $result = $stmt->get_result();
 $row = mysqli_fetch_array($result);
+$userPrifile = explode('.', $row['profile_img']);
 $dbPass = $row['password'] ?? '';
 
 if(password_verify($password, $dbPass)) {
 
   // 토큰에 담을 데이터
   $newAccessToken = [
-    'id'        => $row['id'],
-    'name'      => $row['name'],
-    'user_info' => $row['user_info'],
-    'exp'       => time() + (60 * 60) // 1시간 유지시간
+    'id'                => $row['id'],
+    'name'              => $row['name'],
+    'user_info'         => $row['user_info'],
+    'user_profile_name' => $userPrifile[0],
+    'user_profile_ext'  => $userPrifile[1],
+    'exp'               => time() + (60 * 60) // 1시간 유지시간
   ];
 
   $newRefreshToken = [
@@ -60,17 +63,21 @@ if(password_verify($password, $dbPass)) {
 
   // JSON으로 저장
   echo json_encode([
+
+
     'success' => true,
     'user_id' => $row['id'],
     'user_name' => $row['name'],
     'user_info' => $row['user_info'],
+    'user_profile_name' => $userPrifile[0],
+    'user_profile_ext' => $userPrifile[1],
     'access_token' => $access_token,
     'refresh_token' => $refresh_token
   ]);
 } else {
   echo json_encode([
     'success' => false,
-    'error' => 'Invalid username or password'
+    'error' => '아이디와 비밀번호를 다시 확인해주세요'
   ]);
 }
 

@@ -9,8 +9,11 @@ include_once '../dbconn.php';
 // data : 글 내용
 // file : 파일
 $writer = $_POST['writer'] ?? '';
+$nickname = $_POST['nickname'] ?? '';
 $title = $_POST['title'] ?? '';
 $content = $_POST['content'] ?? '';
+$board_id = $_POST['board'] ?? '';
+$board_id = (int)$board_id;
 $reg_date = date("Y-m-d H:i:s");
 
 // 수정모드시 받아올 것들
@@ -26,9 +29,9 @@ $content = mysqli_real_escape_string($conn, $content);
 // 수정모드일 경우에는 ($modify == true)
 if ($modify) {
   // 수정모드
-  $stmt = $conn->prepare("UPDATE app_board SET title = ?, content = ?, update_date = ? WHERE id = ?");
+  $stmt = $conn->prepare("UPDATE app_board SET title = ?, content = ?, board_id = ?, update_date = ? WHERE id = ?");
   $update_date = date("Y-m-d H:i:s");
-  $stmt->bind_param("sssi", $title, $content, $update_date, $id);
+  $stmt->bind_param("ssisi", $title, $content, $board_id, $update_date, $id);
   $stmt->execute();
 
   // DB 처리 종료
@@ -51,8 +54,8 @@ if ($modify) {
 else {
 
 // DB에 글 저장
-$stmt = $conn->prepare("INSERT INTO app_board (writer, title, content, reg_date) VALUES (?, ?, ?, ?)");
-$stmt->bind_param("ssss", $writer, $title, $content, $reg_date);
+$stmt = $conn->prepare("INSERT INTO app_board (writer, title, content, nickname, board_id, reg_date) VALUES (?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("ssssis", $writer, $title, $content, $nickname, $board_id,  $reg_date);
 $stmt->execute();
 
 // DB 처리 종료

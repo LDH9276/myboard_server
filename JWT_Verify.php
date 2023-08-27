@@ -5,7 +5,7 @@ include_once 'cors.php';
 $header = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
 
 //JWT 토큰 불러오기
-include_once 'jwt.php';
+include_once 'JWT.php';
 
 //DB 연결
 include_once 'dbconn.php';
@@ -27,13 +27,15 @@ $accessResult = $jwt->decodeAccessToken($token);
 if (is_array($accessResult)) {
   // 액세스 토큰이 유효하면 전달
   echo json_encode([
-    'message'       => '토큰이 유효합니다.',
-    'success'       => true,
-    'user_id'       => $accessResult['id'],
-    'user_name'     => $accessResult['name'],
-    'user_info'     => $accessResult['user_info'],
-    'access_token'  => $token,
-    'refresh_token' => $refreshHeader
+    'message'           => '토큰이 유효합니다.',
+    'success'           => true,
+    'user_id'           => $accessResult['id'],
+    'user_name'         => $accessResult['name'],
+    'user_info'         => $accessResult['user_info'],
+    'user_profile_name' => $accessResult['user_profile_name'],
+    'user_profile_ext'  => $accessResult['user_profile_ext'],
+    'access_token'      => $token,
+    'refresh_token'     => $refreshHeader
   ]);
 } 
 
@@ -72,6 +74,7 @@ else {
     $stmt->execute();
     $result = $stmt->get_result();
     $row2 = $result->fetch_assoc();
+    $userPrifile = explode('.', $row2['profile_img']);
 
     $newAccessToken = [
       'id'        => $row2['id'],
@@ -95,13 +98,15 @@ else {
       $stmt->execute();
 
       echo json_encode([
-        'message'       => '두 토큰이 갱신되었습니다.',
-        'success'       => true,
-        'user_id'       => $row2['id'],
-        'user_name'     => $row2['name'],
-        'user_info'     => $row2['user_info'],
-        'access_token'  => $new_access_token,
-        'refresh_token' => $refreshHeader
+        'message'           => '두 토큰이 갱신되었습니다.',
+        'success'           => true,
+        'user_id'           => $row2['id'],
+        'user_name'         => $row2['name'],
+        'user_profile_name' => $userPrifile[0],
+        'user_profile_ext'  => $userPrifile[1],
+        'user_info'         => $row2['user_info'],
+        'access_token'      => $new_access_token,
+        'refresh_token'     => $refreshHeader
       ]);
     } else {
 
@@ -109,12 +114,14 @@ else {
 
       echo json_encode([
         'message'       => '액세스 토큰이 갱신되었습니다.',
-        'success'       => true,
-        'user_id'       => $row2['id'],
-        'user_name'     => $row2['name'],
-        'user_info'     => $row2['user_info'],
-        'access_token'  => $new_access_token,
-        'refresh_token' => $refreshHeader
+        'success'           => true,
+        'user_id'           => $row2['id'],
+        'user_name'         => $row2['name'],
+        'user_profile_name' => $userPrifile[0],
+        'user_profile_ext'  => $userPrifile[1],
+        'user_info'         => $row2['user_info'],
+        'access_token'      => $new_access_token,
+        'refresh_token'     => $refreshHeader
       ]);
 
       $stmt = $conn->prepare("UPDATE app_token SET access_token = ? WHERE refresh_token = ?");

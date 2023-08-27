@@ -2,8 +2,8 @@
 
 
 // DB 연결
-include_once '../cors.php';
-include_once '../dbconn.php';
+include_once '../../cors.php';
+include_once '../../dbconn.php';
 
 // GET으로 페이지 수 받아오기
 $page = $_GET['page'] ?? '';
@@ -19,7 +19,7 @@ $page = $page * 10;
 
 // 리스트 출력하기
 if($board_cate == '*'){
-  $stmt = $conn->prepare("SELECT * FROM app_board where board_id = ? ORDER BY id DESC LIMIT 10 OFFSET ?");
+  $stmt = $conn->prepare("SELECT * FROM app_board where board_id = ? ORDER BY id DESC LIMIT 5 OFFSET ?");
   $stmt->bind_param("ii", $board_id, $page);
 } else {
   $stmt = $conn->prepare("SELECT * FROM app_board where board_id = ? and cat = ? ORDER BY id DESC LIMIT 10 OFFSET ?");

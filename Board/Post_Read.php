@@ -21,11 +21,13 @@ while($row = mysqli_fetch_array($result)) {
   $title = $row['title'] ?? '';
   $content = $row['content'] ?? '';
   $writer = $row['writer'] ?? '';
+  $total_like = $row['total_like'] ?? '';
   $reg_date = $row['reg_date'] ?? '';
 
   $list[] = array(
     'id' => $id,
     'title' => $title,
+    'total_like' => $total_like,
     'content' => $content,
     'writer' => $writer,
     'reg_date' => $reg_date

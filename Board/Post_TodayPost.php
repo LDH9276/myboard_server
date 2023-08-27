@@ -5,38 +5,15 @@
 include_once '../cors.php';
 include_once '../dbconn.php';
 
-// GET으로 페이지 수 받아오기
-$page = $_GET['page'] ?? '';
+// get으로 받아오기
 $board_id = $_GET['board'] ?? '';
-$board_cate = $_GET['boardCate'] ?? '';
-$page = (int)$page;
-if ($board_cate != '*'){
-  $board_id = (int)$board_id;
-}
+$board_id = (int)$board_id;
 
-$page = $page - 1;
-$page = $page * 10;
-
-// 리스트 출력하기
-if($board_cate == '*'){
-  $stmt = $conn->prepare("SELECT * FROM app_board where board_id = ? ORDER BY id DESC LIMIT 10 OFFSET ?");
-  $stmt->bind_param("ii", $board_id, $page);
-} else {
-  $stmt = $conn->prepare("SELECT * FROM app_board where board_id = ? and cat = ? ORDER BY id DESC LIMIT 10 OFFSET ?");
-  $stmt->bind_param("iii", $board_id, $board_cate, $page);
-}
+// 좋아요수가 많은 순으로 정렬
+$stmt = $conn->prepare("SELECT * FROM app_board where board_id = ? ORDER BY total_like DESC limit 5");
+$stmt->bind_param("i", $board_id);
 $stmt->execute();
 $result = $stmt->get_result();
-
-$update_comment_SQL = "UPDATE app_board b
-SET b.comment_count = (
-  SELECT COUNT(*) 
-  FROM app_comment c 
-  WHERE c.post_id = b.id
-);";
-$update_comment_result = mysqli_query($conn, $update_comment_SQL);
-
-
 
 // 리스트 반복처리 후 JSON 데이터로 변환
 $list = array();
@@ -81,11 +58,4 @@ while($row = mysqli_fetch_array($result)) {
 }
 
 // JSON으로 echo 처리하기
-echo json_encode(array("list" => $list));
-
-
-
-// DB 처리 종료
-$stmt->close();
-$conn->close();
-?>
+echo json_encode(array("today_postlist" => $list));

@@ -34,13 +34,24 @@ foreach ($id_list as $id) {
   $result = $stmt->get_result();
 
   while($row = mysqli_fetch_array($result)) {
-    $id = $row['id'] ?? '';
-    $content = $row['content'] ?? '';
-    $writer = $row['writer'] ?? '';
-    $reg_date = $row['reg_date'] ?? '';
-    $commnet_parent = $row['comment_parent'] ?? null;
-    $comment_depth = $row['comment_depth'] ?? '';
-    $post_id = $row['post_id'] ?? '';
+
+    if ($row['is_deleted'] == 1) {
+      $id = $row['id'] ?? '';
+      $content = '삭제된 댓글입니다.';
+      $writer = '';
+      $reg_date = '';
+      $commnet_parent = $row['comment_parent'] ?? null;
+      $comment_depth = $row['comment_depth'] ?? '';
+      $is_deleted = 1;
+    } else {
+      $id = $row['id'] ?? '';
+      $content = $row['content'] ?? '';
+      $writer = $row['writer'] ?? '';
+      $reg_date = $row['reg_date'] ?? '';
+      $commnet_parent = $row['comment_parent'] ?? null;
+      $comment_depth = $row['comment_depth'] ?? '';
+      $is_deleted = 0;
+    }
 
     $list[] = array(
       'post_id' => $post_id,
@@ -49,7 +60,8 @@ foreach ($id_list as $id) {
       'writer' => $writer,
       'reg_date' => $reg_date,
       'comment_parent' => $commnet_parent,
-      'comment_depth' => $comment_depth
+      'comment_depth' => $comment_depth,
+      'is_deleted' => $is_deleted
     );
   }
 }

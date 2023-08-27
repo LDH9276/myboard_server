@@ -34,9 +34,6 @@ if ($modify && !$answer && !$delete) {
   $stmt->bind_param("ssi", $content, $update_date, $id);
   $stmt->execute();
 
-  // DB 처리 종료
-  $stmt->close();
-  $conn->close();
 } else if (!$modify && $answer) {
   // 답글모드
   $depth = $_POST['depth'] ?? 0;
@@ -46,19 +43,23 @@ if ($modify && !$answer && !$delete) {
   $stmt->bind_param("ssssii", $post_id, $writer, $content, $reg_date, $comment_id, $comment_depth);
   $stmt->execute();
 
-  // DB 처리 종료
-  $stmt->close();
-  $conn->close();
+  // 게시판의 댓글 수 증가
+  $stmt = $conn->prepare("UPDATE app_board SET comment_count = comment_count + 1 WHERE id = ?");
+  $stmt->bind_param("i", $post_id);
+  $stmt->execute();
+
 // 삭제모드일 경우에는 ($delete == true)
 } else if (!$modify && $delete) {
   // 삭제모드
-  $stmt = $conn->prepare("DELETE FROM app_comment WHERE id = ?");
+  $stmt = $conn->prepare("UPDATE app_comment SET is_deleted = 1 WHERE id = ?");
   $stmt->bind_param("i", $id);
   $stmt->execute();
 
-  // DB 처리 종료
-  $stmt->close();
-  $conn->close();
+  // 게시판의 댓글 수 감소
+  $stmt = $conn->prepare("UPDATE app_board SET comment_count = comment_count - 1 WHERE id = ?");
+  $stmt->bind_param("i", $post_id);
+  $stmt->execute();
+
 }
 
 // 수정사항이 아닐 경우에는
@@ -69,8 +70,16 @@ $stmt = $conn->prepare("INSERT INTO app_comment (post_id, writer, content, reg_d
 $stmt->bind_param("ssss", $post_id, $writer, $content, $reg_date);
 $stmt->execute();
 
+}
+
+// 댓글 수 최신화
+$stmt = $conn->prepare("UPDATE app_board SET comment_count = (SELECT COUNT(*) FROM app_comment WHERE app_comment.post_id = app_board.id AND app_comment.is_deleted = ?)");
+$is_deleted = 0;
+$stmt->bind_param("i", $is_deleted);
+$stmt->execute();
+
 // DB 처리 종료
 $stmt->close();
 $conn->close();
-}
+
 ?>
