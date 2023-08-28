@@ -29,16 +29,24 @@ $stmt->bind_param("s", $id);
 $stmt->execute();
 $result = $stmt->get_result();
 $row = mysqli_fetch_array($result);
+if(isset($row['progile_img']) && $row['progile_img'] !== null) {
+  $userPrifile = explode('.', $row['progile_img']);
+} else {
+  $userPrifile = ['default', 'png'];
+}
+
 $dbPass = $row['password'] ?? '';
 
 if(password_verify($password, $dbPass)) {
 
   // 토큰에 담을 데이터
   $newAccessToken = [
-    'id'        => $row['id'],
-    'name'      => $row['name'],
-    'user_info' => $row['user_info'],
-    'exp'       => time() + (60 * 60) // 1시간 유지시간
+    'id'                => $row['id'],
+    'name'              => $row['name'],
+    'user_info'         => $row['user_info'],
+    'user_profile_name' => $userPrifile[0],
+    'user_profile_ext'  => $userPrifile[1],
+    'exp'               => time() + (60 * 60) // 1시간 유지시간
   ];
 
   $newRefreshToken = [
@@ -54,9 +62,17 @@ if(password_verify($password, $dbPass)) {
   $refresh_token = $jwt->issueRefreshToken($newRefreshToken);
 
   // DB로 ID, 액세스 토큰, 리프레시 토큰 저장
-  $stmt = $conn->prepare("INSERT INTO app_token (user_id, access_token, refresh_token) VALUES (?, ?, ?)");
-  $stmt->bind_param("sss", $row['id'], $access_token, $refresh_token);
-  $stmt->execute();
+  $tokenInsert = $conn->prepare("INSERT INTO app_token (user_id, access_token, refresh_token) VALUES (?, ?, ?)");
+  $tokenInsert->bind_param("sss", $row['id'], $access_token, $refresh_token);
+  $tokenInsert->execute();
+
+  if($tokenInsert->affected_rows === 0) {
+    echo json_encode([
+      'success' => false,
+      'error' => $tokenInsert->error
+    ]);
+    exit;
+  }
 
   // JSON으로 저장
   echo json_encode([
@@ -64,13 +80,15 @@ if(password_verify($password, $dbPass)) {
     'user_id' => $row['id'],
     'user_name' => $row['name'],
     'user_info' => $row['user_info'],
+    'user_profile_name' => $userPrifile[0],
+    'user_profile_ext' => $userPrifile[1],
     'access_token' => $access_token,
     'refresh_token' => $refresh_token
   ]);
 } else {
   echo json_encode([
     'success' => false,
-    'error' => 'Invalid username or password'
+    'error' => '아이디와 비밀번호를 다시 확인해주세요'
   ]);
 }
 

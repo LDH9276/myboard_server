@@ -1,8 +1,8 @@
 <?php
 
 // DB 연결
-include_once '../cors.php';
-include_once '../dbconn.php';
+include_once '../../cors.php';
+include_once '../../dbconn.php';
 
 $board_id = $_GET['board'] ?? '';
 $board_id = (int)$board_id;
