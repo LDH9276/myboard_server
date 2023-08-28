@@ -5,6 +5,8 @@ include_once '../cors.php';
 include_once '../dbconn.php';
 
 // POST로 받아오기
+$post_id = $_POST['post_id'] ?? '';
+$post_id = (int)$post_id;
 $id = $_POST['comment_id'] ?? '';
 $id = (int)$id;
 $user_id = $_POST['user_id'] ?? '';
@@ -19,8 +21,8 @@ $result = $stmt->get_result();
 // 좋아요가 되어 있지 않다면 레코드 추가
 if($result->num_rows == 0) {
   
-  $stmt = $conn->prepare("INSERT INTO app_comment_like (comment_id, user_id) VALUES (?, ?)");
-  $stmt->bind_param("is", $id, $user_id);
+  $stmt = $conn->prepare("INSERT INTO app_comment_like (post_id, comment_id, user_id) VALUES (?, ?, ?)");
+  $stmt->bind_param("iis", $post_id, $id, $user_id);
   $stmt->execute();
 
   // 좋아요 수 증가
