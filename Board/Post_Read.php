@@ -13,24 +13,24 @@ $stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// 리스트 반복처리 후 JSON 데이터로 변환
 $list = array();
 
-while($row = mysqli_fetch_array($result)) {
-  $id = $row['id'] ?? '';
-  $title = $row['title'] ?? '';
-  $content = $row['content'] ?? '';
-  $writer = $row['writer'] ?? '';
-  $total_like = $row['total_like'] ?? '';
-  $reg_date = $row['reg_date'] ?? '';
+// DB에서 받아온 데이터를 배열에 저장하기
+while ($row = $result->fetch_assoc()) {
+  $content = $row['content'];
+
 
   $list[] = array(
-    'id' => $id,
-    'title' => $title,
-    'total_like' => $total_like,
-    'content' => $content,
-    'writer' => $writer,
-    'reg_date' => $reg_date
+    "id" => $row['id'],
+    "board_id" => $row['board_id'],
+    "cat" => $row['cat'],
+    "title" => $row['title'],
+    "content" => $content,
+    "writer" => $row['writer'],
+    "comment_count" => $row['comment_count'],
+    "total_like" => $row['total_like'],
+    "reg_date" => $row['reg_date'],
+    "update_date" => $row['update_date']
   );
 }
 

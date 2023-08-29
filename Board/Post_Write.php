@@ -55,8 +55,8 @@ if ($modify) {
 else {
 
 // DB에 글 저장
-$stmt = $conn->prepare("INSERT INTO app_board (writer, title, content, nickname) VALUES (?, ?, ?, ?)");
-$stmt->bind_param("ssss", $writer, $title, $content, $nickname);
+$stmt = $conn->prepare("INSERT INTO app_board (writer, title, content, nickname, board_id) VALUES (?, ?, ?, ?, ?)");
+$stmt->bind_param("ssssi", $writer, $title, $content, $nickname, $board_id);
 $stmt->execute();
 
 // DB 처리 종료
