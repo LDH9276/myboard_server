@@ -40,6 +40,7 @@ while($row = mysqli_fetch_array($result)) {
     $is_deleted = 0;
   }
 
+  // 해당 회원의 좋아요 여부 확인 (23.8.27추가)
   $stmt_like = $conn->prepare("SELECT * FROM app_comment_like WHERE comment_id = ? AND user_id = ? and is_delete = false");
   $stmt_like->bind_param("is", $id, $user_id);
   $stmt_like->execute();
