@@ -46,12 +46,12 @@ if(password_verify($password, $dbPass)) {
     'user_info'         => $row['user_info'],
     'user_profile_name' => $userPrifile[0],
     'user_profile_ext'  => $userPrifile[1],
-    'exp'               => time() + (60 * 60) // 1시간 유지시간
+    'exp'               => time() + (60 * 60)
   ];
 
   $newRefreshToken = [
     'id'        => $row['id'],
-    'exp'       => time() + (60 * 60 * 24) // 1일 유지시간
+    'exp'       => time() + (60 * 60 * 24 * 7)
   ];
 
 
@@ -61,9 +61,12 @@ if(password_verify($password, $dbPass)) {
   // 리프레시 토큰 발급
   $refresh_token = $jwt->issueRefreshToken($newRefreshToken);
 
+  // 리프레시 만료일 7일 설정
+  $refreshExp = date('Y-m-d H:i:s', time() + (60 * 60 * 24 * 7));
+
   // DB로 ID, 액세스 토큰, 리프레시 토큰 저장
-  $tokenInsert = $conn->prepare("INSERT INTO app_token (user_id, access_token, refresh_token) VALUES (?, ?, ?)");
-  $tokenInsert->bind_param("sss", $row['id'], $access_token, $refresh_token);
+  $tokenInsert = $conn->prepare("INSERT INTO app_token (user_id, access_token, refresh_token, expire_refresh_token) VALUES (?, ?, ?, ?)");
+  $tokenInsert->bind_param("ssss", $row['id'], $access_token, $refresh_token, $refreshExp);
   $tokenInsert->execute();
 
   if($tokenInsert->affected_rows === 0) {

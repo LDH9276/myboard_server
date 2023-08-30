@@ -77,14 +77,25 @@ else {
     $userPrifile = explode('.', $row2['profile_img']);
 
     $newAccessToken = [
-      'id'        => $row2['id'],
-      'name'      => $row2['name'],
-      'user_info' => $row2['user_info'],
+      'id'                => $row2['id'],
+      'name'              => $row2['name'],
+      'user_info'         => $row2['user_info'],
+      'user_profile_name' => $userPrifile[0],
+      'user_profile_ext'  => $userPrifile[1],
       'exp'       => time() + (60 * 60) // 1시간 유지시간
     ];
 
-    // 리프레시 토큰의 유효기간이 1분 이하로 남았다면
-    if($refreshResult['exp'] - time() < 60) {
+    // 리프레시 토큰의 유효기간이 6시간 이하일 경우
+    if($refreshResult['exp'] - time() < 60 * 60 * 6) {
+      $newAccessToken = [
+        'id'                => $row2['id'],
+        'name'              => $row2['name'],
+        'user_info'         => $row2['user_info'],
+        'user_profile_name' => $userPrifile[0],
+        'user_profile_ext'  => $userPrifile[1],
+        'exp'       => time() + (60 * 60) // 1시간 유지시간
+      ];
+
       $new_access_token = $jwt->issueAccessToken($newAccessToken);
 
       $newRefreshToken = [
@@ -93,8 +104,11 @@ else {
       ];
 
       $new_refresh_token = $jwt->issueRefreshToken($newRefreshToken);
-      $stmt = $conn->prepare("UPDATE app_token SET refresh_token = ? WHERE refresh_token = ?");
-      $stmt->bind_param("ss", $new_refresh_token, $refreshHeader);
+
+      $refreshExp = date('Y-m-d H:i:s', time() + (60 * 60 * 24 * 7));
+
+      $stmt = $conn->prepare("UPDATE app_token SET access_token = ?, refresh_token = ?, expire_refresh_token =? WHERE refresh_token = ?");
+      $stmt->bind_param("ssss", $new_access_token, $new_refresh_token, $refreshExp, $refreshHeader);
       $stmt->execute();
 
       echo json_encode([

@@ -3,6 +3,8 @@ RewriteEngine On
 RewriteCond %{HTTP:Authorization} ^(.*)
 RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
 RewriteBase /
+Header set Access-Control-Allow-Headers "X-Requested-With, Content-Type, Accept, Origin, Authorization, refresh"
+Header set Access-Control-Expose-Headers "refresh"
 # React Router
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
