@@ -22,17 +22,18 @@ while ($row = $result->fetch_assoc()) {
   if (isset($matches[1])){
     $url = $matches[1];
     // 트위터라면
-    if (strpos($url, 'twitter.com') !== false) {
-      $twitter_url = 'https://publish.twitter.com/oembed?url=' . $url;
-      $ch = curl_init();
-      curl_setopt($ch, CURLOPT_URL, $twitter_url);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-      $twitter_json = curl_exec($ch);
-      curl_close($ch);
+    // if (strpos($url, 'twitter.com') !== false) {
+    //   $twitter_url = 'https://publish.twitter.com/oembed?url=' . $url;
+    //   $ch = curl_init();
+    //   curl_setopt($ch, CURLOPT_URL, $twitter_url);
+    //   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    //   $twitter_json = curl_exec($ch);
+    //   curl_close($ch);
 
-      $twitter_array = json_decode($twitter_json, true);
-      $twitter_html = $twitter_array['html'];
-      $total_content = $twitter_html . $content;
+    //   $twitter_array = json_decode($twitter_json, true);
+    //   $twitter_html = $twitter_array['html'];
+    // $total_content = $twitter_html . $content;
+      $total_content = $content;
     } 
     // 유튜브라면
     else if (strpos($url, 'youtube.com') !== false) {
