@@ -22,7 +22,7 @@ while ($row = $result->fetch_assoc()) {
   if (isset($matches[1])){
     $url = $matches[1];
     // 트위터라면
-    // if (strpos($url, 'twitter.com') !== false) {
+    if (strpos($url, 'twitter.com') !== false) {
     //   $twitter_url = 'https://publish.twitter.com/oembed?url=' . $url;
     //   $ch = curl_init();
     //   curl_setopt($ch, CURLOPT_URL, $twitter_url);
