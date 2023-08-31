@@ -18,17 +18,37 @@ $list = array();
 // DB에서 받아온 데이터를 배열에 저장하기
 while ($row = $result->fetch_assoc()) {
   $content = $row['content'];
-  preg_match('/<oembed url=\\\"(.+?)\\\">/', $content, $matches);
+  preg_match('/<p>(.+?)<\/p>/', $content, $matches);
   if (isset($matches[1])){
     $url = $matches[1];
-    $new_content = preg_replace('/<figure class=\\\"media\\\"><oembed url=\\\".+?\\\"><\/oembed><\/figure>/', '', $content);
+    // 트위터라면
+    if (strpos($url, 'twitter.com') !== false) {
+      $twitter_url = 'https://publish.twitter.com/oembed?url=' . $url;
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_URL, $twitter_url);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      $twitter_json = curl_exec($ch);
+      curl_close($ch);
 
-    // url을 https://publish.twitter.com/oembed?url= get으로 보내기
-    $twitter_url = 'https://publish.twitter.com/oembed?url=' . $url;
-    $twitter_json = file_get_contents($twitter_url);
-    $twitter_array = json_decode($twitter_json, true);
-    $twitter_html = $twitter_array['html'];
-    $total_content = $twitter_html . $new_content;
+      $twitter_array = json_decode($twitter_json, true);
+      $twitter_html = $twitter_array['html'];
+      $total_content = $twitter_html . $content;
+    } 
+    // 유튜브라면
+    else if (strpos($url, 'youtube.com') !== false) {
+      $youtube_url = 'https://www.youtube.com/oembed?url=' . $url;
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_URL, $youtube_url);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      $youtube_json = curl_exec($ch);
+      curl_close($ch);
+
+      $youtube_array = json_decode($youtube_json, true);
+      $youtube_html = $youtube_array['html'];
+      $total_content = '<div class="content-youtube">' . $youtube_html . '</div>' . $content;
+    } else {
+      $total_content = $content;
+    }
   } else {
     $total_content = $content;
   }

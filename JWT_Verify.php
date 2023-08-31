@@ -15,7 +15,7 @@ $jwt = new JWT();
 $access_secret_key = $jwt->getAccessSecretKey();
 $refresh_secret_key = $jwt->getRefreshSecretKey();
 $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-$refreshHeader = $_SERVER['HTTP_REFRESH'] ?? '';
+$refreshHeader = $_COOKIE['refresh_token'] ?? null ;
 
 // 액세스 토큰 가져오기
 $token = substr($authHeader, strpos($authHeader, ' ') + 1);
