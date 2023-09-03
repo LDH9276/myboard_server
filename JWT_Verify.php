@@ -52,7 +52,6 @@ else {
       'success' => false,
       'message' => '리프레시 토큰이 유효하지 않습니다.'
     ]);
-    die;
   }
 
   $stmt = $conn->prepare("SELECT * FROM app_token WHERE refresh_token = ? and access_token = ?");

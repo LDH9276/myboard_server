@@ -1,11 +1,14 @@
 <?php
 
+// utf-8 인코딩
+header('Content-Type: application/json; charset=utf-8');
+
 // DB 연결
 include_once '../cors.php';
 include_once '../dbconn.php';
 
 // GET으로 받아오기
-$id = $_GET['id'] ?? '';
+$id = $_POST['id'] ?? '';
 $id = (int)$id;
 
 // 리스트 출력하기
@@ -21,6 +24,8 @@ while($row = mysqli_fetch_array($result)) {
   $id = $row['id'] ?? '';
   $board_name = $row['board_name'] ?? '';
   $board_thumbnail = $row['board_thumb'] ?? '';
+  $board_master = $row['board_master'] ?? '';
+  $board_maseters = explode(',', $board_master);
   $board_detail = $row['board_detail'] ?? '';
   $board_kind = $row['board_kind'] ?? '';
   $board_category = $row['board_category'] ?? '';
@@ -32,6 +37,7 @@ while($row = mysqli_fetch_array($result)) {
     'id' => $id,
     'board_thumbnail' => $board_thumbnail,
     'board_name' => $board_name,
+    'board_admin' => $board_maseters,
     'board_detail' => $board_detail,
     'board_kind' => $board_kind,
     'board_category' => $board_category_item

@@ -19,7 +19,7 @@ $page = $page * 10;
 
 // 리스트 출력하기
 if($board_cate == '*'){
-  $stmt = $conn->prepare("SELECT * FROM app_board where board_id = ? ORDER BY id DESC LIMIT 10 OFFSET ?");
+  $stmt = $conn->prepare("SELECT * FROM app_board where board_id = ? and not cat = 0 ORDER BY id DESC LIMIT 10 OFFSET ?");
   $stmt->bind_param("ii", $board_id, $page);
 } else {
   $stmt = $conn->prepare("SELECT * FROM app_board where board_id = ? and cat = ? ORDER BY id DESC LIMIT 10 OFFSET ?");
