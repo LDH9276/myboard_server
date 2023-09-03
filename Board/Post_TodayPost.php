@@ -10,7 +10,7 @@ $board_id = $_GET['board'] ?? '';
 $board_id = (int)$board_id;
 
 // 좋아요수가 많은 순으로 정렬
-$stmt = $conn->prepare("SELECT * FROM app_board where board_id = ? ORDER BY today_like DESC limit 5");
+$stmt = $conn->prepare("SELECT * FROM app_board where board_id = ? ORDER BY total_like DESC limit 5");
 $stmt->bind_param("i", $board_id);
 $stmt->execute();
 $result = $stmt->get_result();
