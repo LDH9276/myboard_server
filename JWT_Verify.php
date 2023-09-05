@@ -3,6 +3,7 @@
 // CORS 허용
 include_once 'cors.php';
 $header = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
+$refreshHeader = isset($_SERVER['HTTP_REFRESH']) ? $_SERVER['HTTP_REFRESH'] : '';
 
 //JWT 토큰 불러오기
 include_once 'JWT.php';
@@ -15,7 +16,7 @@ $jwt = new JWT();
 $access_secret_key = $jwt->getAccessSecretKey();
 $refresh_secret_key = $jwt->getRefreshSecretKey();
 $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-$refreshHeader = $_COOKIE['refresh_token'] ?? null ;
+$refreshHeader = $_SERVER['HTTP_REFRESH'] ?? '';
 
 // 액세스 토큰 가져오기
 $token = substr($authHeader, strpos($authHeader, ' ') + 1);
