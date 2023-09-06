@@ -71,13 +71,12 @@ class JWT {
     }
 
     // 액세스 토큰 해석하기
-    function decodeAccessToken($token) {
+    function decodeAccessToken($token) : string {
         return $this->decodeToken($token, $this->access_secret_key);
     }
 
     // 리프레시 토큰 해석하기
-    function decodeRefreshToken($token) {
+    function decodeRefreshToken($token) : string {
         return $this->decodeToken($token, $this->refresh_secret_key);
     }
 }
-?>
