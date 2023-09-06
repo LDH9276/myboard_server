@@ -54,4 +54,4 @@ $stmt = $conn->prepare("UPDATE app_users SET visited_board = ? WHERE id = ?");
 $stmt->bind_param("ss", $visited_board, $userId);
 $stmt->execute();
 
-echo json_encode(array("result" => "success"));
+?>

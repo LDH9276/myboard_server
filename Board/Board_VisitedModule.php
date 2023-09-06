@@ -31,7 +31,7 @@ if ($visited_board == null) {
 
         $list[] = array(
             "id" => $list_result['id'],
-            "board_name" => $list_result['board_name'],
+            "board_name" => $list_result['board_short'],
         );
     }
 

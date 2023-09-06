@@ -42,28 +42,28 @@ if($mode === 'read'){
 }
 
 if($mode === 'list_read'){
-    $user_subscribe_check = $conn->prepare("SELECT * FROM app_subscribe WHERE user_id = ? and is_unsubscribe = 0");
+    $user_subscribe_check = $conn->prepare("SELECT * FROM app_subscribe WHERE user_id = ? AND is_unsubscribe = 0");
     $user_subscribe_check->bind_param("s", $user_id);
     $user_subscribe_check->execute();
     $result = $user_subscribe_check->get_result();
 
-    $user_subscribe_list = array();
-    while($row = mysqli_fetch_array($result)) {
+    while ($row = $result->fetch_assoc()) {
+        $board_id = $row['board_id'] ?? '0';
+        $board_id = (int)$board_id;
 
-        $board_id = $row['board_id'];
-        $board_name_check = $conn->prepare("SELECT board_name FROM app_boardlist WHERE id = ?");
-        $board_name_check->bind_param("i", $board_id);
-        $board_name_check->execute();
-        $row2 = $board_name_check->get_result()->fetch_assoc();
-        $board_name = $row2['board_name'] ?? '';
+        $board_subscriber_check = $conn->prepare("SELECT board_name FROM app_boardlist WHERE id = ?");
+        $board_subscriber_check->bind_param("i", $board_id);
+        $board_subscriber_check->execute();
+        $row2 = $board_subscriber_check->get_result()->fetch_assoc();
+        $board_name = $row2['board_name'] ?? 0;
 
-        $user_subscribe_list[] = array(
-            'board_id' => $row['board_id'],
+        $boardlist[] = [
+            'board_id' => $board_id,
             'board_name' => $board_name
-        );
-
-        echo json_encode(array("user_subscribe_list" => $user_subscribe_list));
+        ];
     }
+
+    echo json_encode(["subscribe" => $boardlist]);
 }
 
 else if($mode === 'subscribe'){
