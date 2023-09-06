@@ -20,12 +20,8 @@ $post_last_id = $post_row['id'];
 $list = array();
 
 $list[] = array(
-  "last_board" => $last_id,
-  "last_post" => $post_last_id
+    "last_board" => $last_id,
+    "last_post" => $post_last_id
 );
 
 echo json_encode(array("list" => $list));
-
-
-
-?>

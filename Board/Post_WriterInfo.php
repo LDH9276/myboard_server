@@ -14,7 +14,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 // 결과 반환
-if($result->num_rows > 0) {
+if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     $userProfile = explode('.', $row['profile_img']);
 
@@ -29,5 +29,3 @@ if($result->num_rows > 0) {
 } else {
     echo json_encode(array('result' => 'fail'));
 }
-
-?>
