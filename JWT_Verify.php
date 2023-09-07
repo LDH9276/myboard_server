@@ -3,7 +3,7 @@
 // CORS 허용
 include_once 'cors.php';
 $header = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
-$refreshHeader = isset($_SERVER['HTTP_REFRESH']) ? $_SERVER['HTTP_REFRESH'] : '';
+$refreshHeader = $_COOKIE['refresh_token'] ?? '';
 
 //JWT 토큰 불러오기
 include_once 'JWT.php';
@@ -16,7 +16,6 @@ $jwt = new JWT();
 $access_secret_key = $jwt->getAccessSecretKey();
 $refresh_secret_key = $jwt->getRefreshSecretKey();
 $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-$refreshHeader = $_SERVER['HTTP_REFRESH'] ?? '';
 
 // 액세스 토큰 가져오기
 $token = substr($authHeader, strpos($authHeader, ' ') + 1);
@@ -118,8 +117,17 @@ if (is_array($accessResult)) {
                 'user_profile_ext'  => $userPrifile[1],
                 'user_info'         => $row2['user_info'],
                 'access_token'      => $new_access_token,
-                'refresh_token'     => $refreshHeader
+                'refresh_token'     => $new_refresh_token
             ]);
+
+                        
+            setcookie("refresh_token", $new_refresh_token, [
+                "expires" => time() + (60 * 60 * 24 * 7), // 7일 후 만료
+                "path" => "/", // 모든 경로에서 사용 가능
+                "httponly" => true, // JavaScript에서 접근 불가능하도록 설정
+                "samesite" => "Strict" // 필요에 따라 "Lax"로 변경 가능
+            ]);
+
         } else {
 
             $new_access_token = $jwt->issueAccessToken($newAccessToken);

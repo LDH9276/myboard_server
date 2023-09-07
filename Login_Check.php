@@ -64,6 +64,20 @@ if(password_verify($password, $dbPass)) {
   // 리프레시 만료일 7일 설정
   $refreshExp = date('Y-m-d H:i:s', time() + (60 * 60 * 24 * 7));
 
+  setcookie("refresh_token", $refresh_token, [
+    "expires" => time() + (60 * 60 * 24 * 7), // 7일 후 만료
+    "path" => "/", // 모든 경로에서 사용 가능
+    "httponly" => true, // JavaScript에서 접근 불가능하도록 설정
+    "samesite" => "Strict" // 필요에 따라 "Lax"로 변경 가능
+]);
+
+    setcookie('test', 'test', [
+        "expires" => time() + (60 * 60 * 24 * 7), // 7일 후 만료
+        "path" => "/", // 모든 경로에서 사용 가능
+        "httponly" => true, // JavaScript에서 접근 불가능하도록 설정
+        "samesite" => "Strict" // 필요에 따라 "Lax"로 변경 가능
+    ]);
+
   // DB로 ID, 액세스 토큰, 리프레시 토큰 저장
   $tokenInsert = $conn->prepare("INSERT INTO app_token (user_id, access_token, refresh_token, expire_refresh_token) VALUES (?, ?, ?, ?)");
   $tokenInsert->bind_param("ssss", $row['id'], $access_token, $refresh_token, $refreshExp);
