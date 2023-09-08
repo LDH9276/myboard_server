@@ -41,8 +41,8 @@ if(password_verify($password, $dbPass)) {
 
   // 토큰에 담을 데이터
   $newAccessToken = [
-    'id'                => $row['id'],
-    'name'              => $row['name'],
+    'user_id'           => $row['id'],
+    'user_name'         => $row['name'],
     'user_info'         => $row['user_info'],
     'user_profile_name' => $userPrifile[0],
     'user_profile_ext'  => $userPrifile[1],
@@ -112,4 +112,3 @@ if(password_verify($password, $dbPass)) {
   // DB 연결 종료
   $stmt->close();
   $conn->close();
-?>

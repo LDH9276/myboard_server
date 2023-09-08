@@ -29,11 +29,11 @@ if (is_array($accessResult)) {
     echo json_encode([
         'message'           => '토큰이 유효합니다.',
         'success'           => true,
-        'user_id'           => $accessResult['id'],
-        'user_name'         => $accessResult['name'],
-        'user_info'         => $accessResult['user_info'],
-        'user_profile_name' => $accessResult['user_profile_name'],
-        'user_profile_ext'  => $accessResult['user_profile_ext'],
+        'user_id'           => $accessResult['user_id'] ?? '',
+        'user_name'         => $accessResult['user_name'] ?? '',
+        'user_info'         => $accessResult['user_info'] ?? '',
+        'user_profile_name' => $accessResult['user_profile_name'] ?? '',
+        'user_profile_ext'  => $accessResult['user_profile_ext'] ?? '',
         'access_token'      => $token,
         'refresh_token'     => $refreshHeader
     ]);
@@ -74,8 +74,8 @@ if (is_array($accessResult)) {
         $userPrifile = explode('.', $row2['profile_img']);
 
         $newAccessToken = [
-            'id'                => $row2['id'],
-            'name'              => $row2['name'],
+            'user_id'           => $row2['id'],
+            'user_name'         => $row2['name'],
             'user_info'         => $row2['user_info'],
             'user_profile_name' => $userPrifile[0],
             'user_profile_ext'  => $userPrifile[1],
