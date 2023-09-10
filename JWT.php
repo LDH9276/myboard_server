@@ -1,11 +1,13 @@
 <?php
-class JWT {
+class JWT
+{
     protected $alg;
     protected $access_secret_key;
     protected $refresh_secret_key;
 
     // 생성자
-    function __construct() {
+    function __construct()
+    {
         // 사용할 알고리즘
         $this->alg = 'sha256';
         // 액세스 토큰 비밀 키
@@ -15,17 +17,20 @@ class JWT {
     }
 
     // 액세스 토큰 비밀 키 가져오기
-    public function getAccessSecretKey() {
+    public function getAccessSecretKey()
+    {
         return $this->access_secret_key;
     }
 
     // 리프레시 토큰 비밀 키 가져오기
-    public function getRefreshSecretKey() {
+    public function getRefreshSecretKey()
+    {
         return $this->refresh_secret_key;
     }
 
     // 액세스 토큰 발급하기
-    function issueAccessToken(array $data_token): string {
+    function issueAccessToken(array $data_token): string
+    {
         // 헤더 - 사용할 알고리즘과 타입 명시
         $header = json_encode(array('alg' => $this->alg, 'typ' => 'JWT'));
         // 페이로드 - 전달할 데이터
@@ -36,7 +41,8 @@ class JWT {
     }
 
     // 리프레시 토큰 발급하기
-    function issueRefreshToken(array $data_token): string {
+    function issueRefreshToken(array $data_token): string
+    {
         // 헤더 - 사용할 알고리즘과 타입 명시
         $header = json_encode(array('alg' => $this->alg, 'typ' => 'JWT'));
         // 페이로드 - 전달할 데이터
@@ -47,7 +53,8 @@ class JWT {
     }
 
     // 토큰 해석하기
-    function decodeToken($token, $secret_key) {
+    function decodeToken($token, $secret_key)
+    {
 
         // 구분자 . 로 토큰 나누기
         $parted = explode('.', base64_decode($token));
@@ -62,31 +69,24 @@ class JWT {
         if (hash($this->alg, $parted[0] . $parted[1] . $secret_key) != $signature) {
             return "signature error.";
         }
-      // 만료 검사
+        // 만료 검사
         $payload = json_decode($parted[1], true);
-            if ($payload['exp'] < time()) {
+        if ($payload['exp'] < time()) {
             return "토큰이 만료되었습니다.";
         }
         return $payload;
     }
 
     // 액세스 토큰 해석하기
-    function decodeAccessToken($token) : array {
+    function decodeAccessToken($token) {
         $decoded = $this->decodeToken($token, $this->access_secret_key);
-        if (is_array($decoded)) {
-            return $decoded;
-        } else {
-            return [$decoded];
-        }
+        return $decoded;
     }
 
     // 리프레시 토큰 해석하기
-    function decodeRefreshToken($token) : array {
+    function decodeRefreshToken($token)
+    {
         $decoded = $this->decodeToken($token, $this->refresh_secret_key);
-        if (is_array($decoded)) {
-            return $decoded;
-        } else {
-            return [$decoded];
-        }
+        return $decoded;
     }
 }

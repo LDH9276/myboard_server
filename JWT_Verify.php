@@ -3,7 +3,6 @@
 // CORS 허용
 include_once 'cors.php';
 $header = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
-$refreshHeader = $_COOKIE['refresh_token'] ?? '';
 
 //JWT 토큰 불러오기
 include_once 'JWT.php';
@@ -15,7 +14,8 @@ include_once 'dbconn.php';
 $jwt = new JWT();
 $access_secret_key = $jwt->getAccessSecretKey();
 $refresh_secret_key = $jwt->getRefreshSecretKey();
-$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? null;
+$refreshHeader = $_COOKIE['refresh_token'] ?? '';
 
 // 액세스 토큰 가져오기
 $token = substr($authHeader, strpos($authHeader, ' ') + 1);
@@ -23,11 +23,13 @@ $token = substr($authHeader, strpos($authHeader, ' ') + 1);
 // 액세스 토큰 해석
 $accessResult = $jwt->decodeAccessToken($token);
 
+
+
 // 조건 : 액세스 토큰이 유효하다면
 if (is_array($accessResult)) {
     // 액세스 토큰이 유효하면 전달
     echo json_encode([
-        'message'           => '토큰이 유효합니다.',
+        'message'           => '액세스 토큰이 유효합니다.',
         'success'           => true,
         'user_id'           => $accessResult['user_id'] ?? '',
         'user_name'         => $accessResult['user_name'] ?? '',
@@ -42,6 +44,7 @@ if (is_array($accessResult)) {
     // 리프레시 토큰과 액세스 토큰이 일치하는지 확인해본다
 
     // 리프레시 토큰 해석
+
     $refreshResult = $jwt->decodeRefreshToken($refreshHeader);
 
     // 검증 실패시
@@ -50,103 +53,103 @@ if (is_array($accessResult)) {
             'success' => false,
             'message' => '리프레시 토큰이 유효하지 않습니다.'
         ]);
-    }
-
-    $stmt = $conn->prepare("SELECT * FROM app_token WHERE refresh_token = ? and access_token = ?");
-    $stmt->bind_param("ss", $refreshHeader, $token);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-
-    if ($result->num_rows == 0) {
-        // 리프레시 토큰이 유효하지 않다면
-        echo json_encode([
-            'success' => false,
-            'message' => '토큰이 유효하지 않습니다.'
-        ]);
     } else {
-
-        $stmt = $conn->prepare("SELECT * FROM app_users WHERE id = ?");
-        $stmt->bind_param("s", $row['user_id']);
+        // 검증 성공시
+        $stmt = $conn->prepare("SELECT * FROM app_token WHERE refresh_token = ? and access_token = ?");
+        $stmt->bind_param("ss", $refreshHeader, $token);
         $stmt->execute();
         $result = $stmt->get_result();
-        $row2 = $result->fetch_assoc();
-        $userPrifile = explode('.', $row2['profile_img']);
+        $row = $result->fetch_assoc();
 
-        $newAccessToken = [
-            'user_id'           => $row2['id'],
-            'user_name'         => $row2['name'],
-            'user_info'         => $row2['user_info'],
-            'user_profile_name' => $userPrifile[0],
-            'user_profile_ext'  => $userPrifile[1],
-            'exp'       => time() + (60 * 60) // 1시간 유지시간
-        ];
+        if ($result->num_rows == 0) {
+            // 리프레시 토큰이 유효하지 않다면
+            echo json_encode([
+                'success' => false,
+                'message' => '토큰이 유효하지 않습니다.'
+            ]);
+        } else {
 
-        // 리프레시 토큰의 유효기간이 6시간 이하일 경우
-        if ($refreshResult['exp'] - time() < 60 * 60 * 6) {
+            $stmt = $conn->prepare("SELECT * FROM app_users WHERE id = ?");
+            $stmt->bind_param("s", $row['user_id']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row2 = $result->fetch_assoc();
+            $userPrifile = explode('.', $row2['profile_img']);
+
             $newAccessToken = [
-                'id'                => $row2['id'],
-                'name'              => $row2['name'],
+                'user_id'           => $row2['id'],
+                'user_name'         => $row2['name'],
                 'user_info'         => $row2['user_info'],
                 'user_profile_name' => $userPrifile[0],
                 'user_profile_ext'  => $userPrifile[1],
                 'exp'       => time() + (60 * 60) // 1시간 유지시간
             ];
 
-            $new_access_token = $jwt->issueAccessToken($newAccessToken);
+            // 리프레시 토큰의 유효기간이 6시간 이하일 경우
+            if ($refreshResult['exp'] - time() < 60 * 60 * 6) {
+                $newAccessToken = [
+                    'user_id'           => $row2['id'],
+                    'user_name'         => $row2['name'],
+                    'user_info'         => $row2['user_info'],
+                    'user_profile_name' => $userPrifile[0],
+                    'user_profile_ext'  => $userPrifile[1],
+                    'exp'       => time() + (60 * 60) // 1시간 유지시간
+                ];
 
-            $newRefreshToken = [
-                'id'        => $row2['id'],
-                'exp'       => time() + (60 * 60 * 24) // 1일 유지시간
-            ];
+                $new_access_token = $jwt->issueAccessToken($newAccessToken);
 
-            $new_refresh_token = $jwt->issueRefreshToken($newRefreshToken);
+                $newRefreshToken = [
+                    'id'        => $row2['id'],
+                    'exp'       => time() + (60 * 60 * 24) // 1일 유지시간
+                ];
 
-            $refreshExp = date('Y-m-d H:i:s', time() + (60 * 60 * 24 * 7));
+                $new_refresh_token = $jwt->issueRefreshToken($newRefreshToken);
 
-            $stmt = $conn->prepare("UPDATE app_token SET access_token = ?, refresh_token = ?, expire_refresh_token =? WHERE refresh_token = ?");
-            $stmt->bind_param("ssss", $new_access_token, $new_refresh_token, $refreshExp, $refreshHeader);
-            $stmt->execute();
+                $refreshExp = date('Y-m-d H:i:s', time() + (60 * 60 * 24 * 7));
 
-            echo json_encode([
-                'message'           => '두 토큰이 갱신되었습니다.',
-                'success'           => true,
-                'user_id'           => $row2['id'],
-                'user_name'         => $row2['name'],
-                'user_profile_name' => $userPrifile[0],
-                'user_profile_ext'  => $userPrifile[1],
-                'user_info'         => $row2['user_info'],
-                'access_token'      => $new_access_token,
-                'refresh_token'     => $new_refresh_token
-            ]);
+                $stmt = $conn->prepare("UPDATE app_token SET access_token = ?, refresh_token = ?, expire_refresh_token =? WHERE refresh_token = ?");
+                $stmt->bind_param("ssss", $new_access_token, $new_refresh_token, $refreshExp, $refreshHeader);
+                $stmt->execute();
 
-                        
-            setcookie("refresh_token", $new_refresh_token, [
-                "expires" => time() + (60 * 60 * 24 * 7), // 7일 후 만료
-                "path" => "/", // 모든 경로에서 사용 가능
-                "httponly" => true, // JavaScript에서 접근 불가능하도록 설정
-                "samesite" => "Strict" // 필요에 따라 "Lax"로 변경 가능
-            ]);
+                echo json_encode([
+                    'message'           => '두 토큰이 갱신되었습니다.',
+                    'success'           => true,
+                    'user_id'           => $row2['id'],
+                    'user_name'         => $row2['name'],
+                    'user_profile_name' => $userPrifile[0],
+                    'user_profile_ext'  => $userPrifile[1],
+                    'user_info'         => $row2['user_info'],
+                    'access_token'      => $new_access_token,
+                    'refresh_token'     => $new_refresh_token
+                ]);
 
-        } else {
 
-            $new_access_token = $jwt->issueAccessToken($newAccessToken);
+                setcookie("refresh_token", $new_refresh_token, [
+                    "expires" => time() + (60 * 60 * 24 * 7), // 7일 후 만료
+                    "path" => "/", // 모든 경로에서 사용 가능
+                    "httponly" => true, // JavaScript에서 접근 불가능하도록 설정
+                    "samesite" => "Strict" // 필요에 따라 "Lax"로 변경 가능
+                ]);
+            } else {
 
-            echo json_encode([
-                'message'       => '액세스 토큰이 갱신되었습니다.',
-                'success'           => true,
-                'user_id'           => $row2['id'],
-                'user_name'         => $row2['name'],
-                'user_profile_name' => $userPrifile[0],
-                'user_profile_ext'  => $userPrifile[1],
-                'user_info'         => $row2['user_info'],
-                'access_token'      => $new_access_token,
-                'refresh_token'     => $refreshHeader
-            ]);
+                $new_access_token = $jwt->issueAccessToken($newAccessToken);
 
-            $stmt = $conn->prepare("UPDATE app_token SET access_token = ? WHERE refresh_token = ?");
-            $stmt->bind_param("ss", $new_access_token, $refreshHeader);
-            $stmt->execute();
+                echo json_encode([
+                    'message'       => '액세스 토큰이 갱신되었습니다.',
+                    'success'           => true,
+                    'user_id'           => $row2['id'],
+                    'user_name'         => $row2['name'],
+                    'user_profile_name' => $userPrifile[0],
+                    'user_profile_ext'  => $userPrifile[1],
+                    'user_info'         => $row2['user_info'],
+                    'access_token'      => $new_access_token,
+                    'refresh_token'     => $refreshHeader
+                ]);
+
+                $stmt = $conn->prepare("UPDATE app_token SET access_token = ? WHERE refresh_token = ?");
+                $stmt->bind_param("ss", $new_access_token, $refreshHeader);
+                $stmt->execute();
+            }
         }
     }
 }

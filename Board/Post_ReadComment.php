@@ -48,14 +48,21 @@ while ($row = mysqli_fetch_array($result)) {
                 curl_close($ch);
 
                 $youtube_array = json_decode($youtube_json, true);
-                $youtube_html = $youtube_array['html'];
+                $youtube_html = '<div class="comment-youtube">' . $youtube_array['html'] . '</div>'; 
+                
 
                 // $content에서 유튜브 URL을 제거하고 대신 유튜브 oEmbed HTML을 삽입
                 $total_content = str_replace($url, $youtube_html, $total_content);
             }
         }
 
-
+        $profile_check = $conn->prepare("SELECT profile_img FROM app_users WHERE id = ?");
+        $profile_check->bind_param("s", $row['writer']);
+        $profile_check->execute();
+        $profile_result = $profile_check->get_result();
+        $profile_row = $profile_result->fetch_assoc();
+        $userProfile = explode('.', $profile_row['profile_img']);
+        
 
         $id = $row['id'] ?? '';
         $writer = $row['writer'] ?? '';
@@ -80,6 +87,8 @@ while ($row = mysqli_fetch_array($result)) {
 
     $list[] = array(
         'id' => $id,
+        'profile_name' => $userProfile[0],
+        'profile_ext' => $userProfile[1],
         'content' => $total_content,
         'writer' => $writer,
         'reg_date' => $reg_date,
