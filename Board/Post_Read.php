@@ -59,6 +59,21 @@ if($mod){
     
             // $content에서 유튜브 URL을 제거하고 대신 유튜브 oEmbed HTML을 삽입
             $total_content = str_replace('<p>' . $url . '</p>', '<div class="content-youtube">' . $youtube_html . '</div>', $total_content);
+        } else if (strpos($url, 'twitter.com') !== false) {
+            $twitter_url = 'https://publish.twitter.com/oembed?url=' . $url;
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $twitter_url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // SSL 인증서 검증 무시
+            $twitter_json = curl_exec($ch);
+            curl_close($ch);
+
+            $twitter_array = json_decode($twitter_json, true);
+            $twitter_html = $twitter_array['html'];
+
+            // $content에서 트위터 URL을 제거하고 대신 트위터 oEmbed HTML을 삽입
+            $total_content = str_replace('<p>' . $url . '</p>', "<div class='content-youtube'><iframe class='content-twitter' srcdoc='" . $twitter_html . "' onload='resizeIframe(this)'></iframe></div>", $total_content);
         }
     }
     
