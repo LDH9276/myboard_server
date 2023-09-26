@@ -73,7 +73,7 @@ if($mod){
             $twitter_html = $twitter_array['html'];
 
             // $content에서 트위터 URL을 제거하고 대신 트위터 oEmbed HTML을 삽입
-            $total_content = str_replace('<p>' . $url . '</p>', "<div class='content-youtube'><iframe class='content-twitter' srcdoc='" . $twitter_html . "' onload='resizeIframe(this)'></iframe></div>", $total_content);
+            $total_content = str_replace('<p>' . $url . '</p>', "<div data-width='350' class='content-twitter'>". $twitter_html . "</div>", $total_content);
         }
     }
     
