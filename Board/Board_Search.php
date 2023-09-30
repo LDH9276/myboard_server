@@ -5,8 +5,11 @@ include_once '../cors.php';
 include_once '../dbconn.php';
 
 $search = $_POST['search'] ?? '';
+$searchWildcard = '%' . implode('%', preg_split('//u', $search, -1, PREG_SPLIT_NO_EMPTY)) . '%';
 
-$stmt = $conn->prepare("SELECT * FROM app_boardlist where board_name like '%$search%' order by board_subscriber desc");
+
+$stmt = $conn->prepare("SELECT * FROM app_boardlist WHERE board_name LIKE ? ORDER BY board_subscriber DESC");
+$stmt->bind_param("s", $searchWildcard);
 $stmt->execute();
 $result = $stmt->get_result();
 

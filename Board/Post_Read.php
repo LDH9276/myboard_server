@@ -74,7 +74,24 @@ if($mod){
             
 
             // $content에서 트위터 URL을 제거하고 대신 트위터 oEmbed HTML을 삽입
-            $total_content = str_replace('<p>' . $url . '</p>', "<div class='content-twitter'><iframe width='100%' height='auto' srcdoc='" . $twitter_html . "' ref={iframeRef}></iframe></div>", $total_content);
+            $total_content = str_replace('<p>' . $url . '</p>', "<div class='content-twitter'>" . $twitter_html . "</div>", $total_content);
+        } else if (strpos($url, 'x.com') !== false) {
+            $change_url = str_replace('x.com', 'twitter.com', $url);
+            $twitter_url = 'https://publish.twitter.com/oembed?url=' . $change_url;
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $twitter_url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // SSL 인증서 검증 무시
+            $twitter_json = curl_exec($ch);
+            curl_close($ch);
+
+            $twitter_array = json_decode($twitter_json, true);
+            $twitter_html = $twitter_array['html'];
+            
+
+            // $content에서 트위터 URL을 제거하고 대신 트위터 oEmbed HTML을 삽입
+            $total_content = str_replace('<p>' . $url . '</p>', "<div class='content-twitter'>" . $twitter_html . "</div>", $total_content);
         }
     }
     
