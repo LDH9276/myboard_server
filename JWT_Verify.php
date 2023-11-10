@@ -31,6 +31,7 @@ if (is_array($accessResult)) {
     echo json_encode([
         'message'           => '액세스 토큰이 유효합니다.',
         'success'           => true,
+        'type'              => 'checked',   
         'user_id'           => $accessResult['user_id'] ?? '',
         'user_name'         => $accessResult['user_name'] ?? '',
         'user_info'         => $accessResult['user_info'] ?? '',
@@ -114,6 +115,7 @@ if (is_array($accessResult)) {
                 echo json_encode([
                     'message'           => '두 토큰이 갱신되었습니다.',
                     'success'           => true,
+                    'type'              => 'both',   
                     'user_id'           => $row2['id'],
                     'user_name'         => $row2['name'],
                     'user_profile_name' => $userPrifile[0],
@@ -137,6 +139,7 @@ if (is_array($accessResult)) {
                 echo json_encode([
                     'message'       => '액세스 토큰이 갱신되었습니다.',
                     'success'           => true,
+                    'type'              => 'access',   
                     'user_id'           => $row2['id'],
                     'user_name'         => $row2['name'],
                     'user_profile_name' => $userPrifile[0],
